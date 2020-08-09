@@ -56,9 +56,11 @@ namespace LibreHardwareMonitor.UI
 
         private readonly UserOption _runWebServer;
         private readonly UserOption _logSensors;
+        private readonly UserOption _runBluetoothSender;
         private readonly UserRadioGroup _loggingInterval;
         private readonly UserRadioGroup _sensorValuesTimeWindow;
         private readonly Logger _logger;
+        private readonly BluetoothSender _bluetoothSender;
 
         private bool _selectionDragging;
 
@@ -145,6 +147,7 @@ namespace LibreHardwareMonitor.UI
             }
 
             _logger = new Logger(_computer);
+            _bluetoothSender = new BluetoothSender(_computer);
 
             _plotColorPalette = new Color[13];
             _plotColorPalette[0] = Color.Blue;
@@ -292,6 +295,7 @@ namespace LibreHardwareMonitor.UI
                 log30sMenuItem, log1minMenuItem, log2minMenuItem, log5minMenuItem,
                 log10minMenuItem, log30minMenuItem, log1hMenuItem, log2hMenuItem,
                 log6hMenuItem}, _settings);
+
             _loggingInterval.Changed += (sender, e) =>
             {
                 switch (_loggingInterval.Value)
@@ -310,13 +314,33 @@ namespace LibreHardwareMonitor.UI
                     case 11: _logger.LoggingInterval = new TimeSpan(2, 0, 0); break;
                     case 12: _logger.LoggingInterval = new TimeSpan(6, 0, 0); break;
                 }
+
+                switch (_loggingInterval.Value)
+                {
+                    case 0: _bluetoothSender.LoggingInterval = new TimeSpan(0, 0, 1); break;
+                    case 1: _bluetoothSender.LoggingInterval = new TimeSpan(0, 0, 2); break;
+                    case 2: _bluetoothSender.LoggingInterval = new TimeSpan(0, 0, 5); break;
+                    case 3: _bluetoothSender.LoggingInterval = new TimeSpan(0, 0, 10); break;
+                    case 4: _bluetoothSender.LoggingInterval = new TimeSpan(0, 0, 30); break;
+                    case 5: _bluetoothSender.LoggingInterval = new TimeSpan(0, 1, 0); break;
+                    case 6: _bluetoothSender.LoggingInterval = new TimeSpan(0, 2, 0); break;
+                    case 7: _bluetoothSender.LoggingInterval = new TimeSpan(0, 5, 0); break;
+                    case 8: _bluetoothSender.LoggingInterval = new TimeSpan(0, 10, 0); break;
+                    case 9: _bluetoothSender.LoggingInterval = new TimeSpan(0, 30, 0); break;
+                    case 10: _bluetoothSender.LoggingInterval = new TimeSpan(1, 0, 0); break;
+                    case 11: _bluetoothSender.LoggingInterval = new TimeSpan(2, 0, 0); break;
+                    case 12: _bluetoothSender.LoggingInterval = new TimeSpan(6, 0, 0); break;
+                }
             };
+
+            _runBluetoothSender = new UserOption("menuItemBtRun", false, menuItemBtRun, _settings);
 
             _sensorValuesTimeWindow = new UserRadioGroup("sensorValuesTimeWindow", 10,
                 new[] { timeWindow30sMenuItem, timeWindow1minMenuItem, timeWindow2minMenuItem,
                 timeWindow5minMenuItem, timeWindow10minMenuItem, timeWindow30minMenuItem,
                 timeWindow1hMenuItem, timeWindow2hMenuItem, timeWindow6hMenuItem,
                 timeWindow12hMenuItem, timeWindow24hMenuItem}, _settings);
+
             _sensorValuesTimeWindow.Changed += (sender, e) =>
             {
                 TimeSpan timeWindow = TimeSpan.Zero;
@@ -641,7 +665,21 @@ namespace LibreHardwareMonitor.UI
             _wmiProvider?.Update();
 
             if (_logSensors != null && _logSensors.Value && _delayCount >= 4)
+            {
                 _logger.Log();
+            }
+
+            if (_runBluetoothSender != null && _runBluetoothSender.Value && _delayCount >= 4)
+            {
+                if (_bluetoothSender.Client != null && !_bluetoothSender.Client.Connected)
+                {
+                    string btAddress = null;
+                    btAddress = _settings.GetValue("bluetoothHostAddress", btAddress);
+                    _bluetoothSender.Connect(btAddress);
+                }
+
+                _bluetoothSender.Send();
+            }
 
             if (_delayCount < 4)
                 _delayCount++;
@@ -1050,5 +1088,16 @@ namespace LibreHardwareMonitor.UI
         }
 
         public bool AuthWebServerMenuItemChecked { get { return authWebServerMenuItem.Checked; } set { authWebServerMenuItem.Checked = value; } }
+
+        private void menuItemBtConfig_Click(object sender, EventArgs e)
+        {
+            var btConfig = new BluetoothServerConfig(_bluetoothSender);
+            btConfig.ShowDialog();
+            var btAddress = btConfig.BluetoothAddress;
+            _settings.SetValue("bluetoothHostAddress", btAddress.ToString());
+            SaveConfiguration();
+        }
+
+
     }
 }

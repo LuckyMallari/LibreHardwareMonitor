@@ -125,6 +125,9 @@ namespace LibreHardwareMonitor.UI
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new LibreHardwareMonitor.UI.SplitContainerAdv();
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
+            this.menuItem4 = new System.Windows.Forms.MenuItem();
+            this.menuItemBtRun = new System.Windows.Forms.MenuItem();
+            this.menuItemBtConfig = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.SuspendLayout();
@@ -389,7 +392,8 @@ namespace LibreHardwareMonitor.UI
             this.loggingIntervalMenuItem,
             this.sensorValuesTimeWindowMenuItem,
             this.webMenuItemSeparator,
-            this.webMenuItem});
+            this.webMenuItem,
+            this.menuItem4});
             this.optionsMenuItem.Text = "Options";
             // 
             // startMinMenuItem
@@ -768,6 +772,25 @@ namespace LibreHardwareMonitor.UI
             this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseMove);
             this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseUp);
             // 
+            // menuItem4
+            // 
+            this.menuItem4.Index = 13;
+            this.menuItem4.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItemBtRun,
+            this.menuItemBtConfig});
+            this.menuItem4.Text = "Remote Bluetooth Server";
+            // 
+            // menuItem7
+            // 
+            this.menuItemBtRun.Index = 0;
+            this.menuItemBtRun.Text = "Run";
+            // 
+            // menuItemBtConfig
+            // 
+            this.menuItemBtConfig.Index = 1;
+            this.menuItemBtConfig.Text = "Configure";
+            this.menuItemBtConfig.Click += new System.EventHandler(this.menuItemBtConfig_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -880,6 +903,9 @@ namespace LibreHardwareMonitor.UI
         private System.Windows.Forms.MenuItem timeWindow12hMenuItem;
         private System.Windows.Forms.MenuItem timeWindow24hMenuItem;
         private System.Windows.Forms.MenuItem authWebServerMenuItem;
+        private System.Windows.Forms.MenuItem menuItem4;
+        private System.Windows.Forms.MenuItem menuItemBtRun;
+        private System.Windows.Forms.MenuItem menuItemBtConfig;
     }
 }
 

@@ -62,7 +62,30 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="InTheHand.Net.Personal, Version=3.5.605.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
+      <HintPath>..\packages\32feet.NET.3.5.0.0\lib\net\InTheHand.Net.Personal.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Win32.TaskScheduler, Version=2.8.15.0, Culture=neutral, PublicKeyToken=c416bc1b32d97233, processorArchitecture=MSIL">
       <HintPath>..\packages\TaskScheduler.2.8.15\lib\net452\Microsoft.Win32.TaskScheduler.dll</HintPath>
     </Reference>
@@ -93,6 +116,12 @@
     </Compile>
     <Compile Include="UI\AuthForm.Designer.cs">
       <DependentUpon>AuthForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\BluetoothServerConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\BluetoothServerConfig.Designer.cs">
+      <DependentUpon>BluetoothServerConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\IExpandPersistNode.cs" />
     <Compile Include="UI\ScaledPlotModel.cs" />
@@ -130,6 +159,7 @@
     <Compile Include="UI\UpdateVisitor.cs" />
     <Compile Include="UI\UserOption.cs" />
     <Compile Include="UI\UserRadioGroup.cs" />
+    <Compile Include="Utilities\BluetoothSender.cs" />
     <Compile Include="Utilities\HttpServer.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\PersistentSettings.cs" />
@@ -165,6 +195,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\AuthForm.resx">
       <DependentUpon>AuthForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\BluetoothServerConfig.resx">
+      <DependentUpon>BluetoothServerConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\PortForm.resx">
       <DependentUpon>PortForm.cs</DependentUpon>
