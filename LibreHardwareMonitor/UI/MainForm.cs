@@ -1105,6 +1105,8 @@ namespace LibreHardwareMonitor.UI
             var btConfig = new BluetoothServerConfig(_bluetoothSender);
             btConfig.ShowDialog();
             var btAddress = btConfig.BluetoothAddress;
+            if (btAddress == null)
+                return;
             _settings.SetValue("bluetoothHostAddress", btAddress.ToString());
             SaveConfiguration();
         }

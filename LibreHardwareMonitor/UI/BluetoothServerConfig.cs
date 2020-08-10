@@ -1,12 +1,12 @@
 ﻿using InTheHand.Net.Bluetooth;
 using InTheHand.Net.Sockets;
 using System;
-using System.Text;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using LibreHardwareMonitor.Utilities;
 using InTheHand.Net;
 using System.Linq;
+
 
 namespace LibreHardwareMonitor.UI
 {
@@ -26,8 +26,24 @@ namespace LibreHardwareMonitor.UI
             this.Load += BluetoothServerConfig_Load;
         }
 
+        
+
         private void BluetoothServerConfig_Load(object sender, EventArgs e)
         {
+            if (BluetoothRadio.PrimaryRadio == null)
+            {
+                MessageBox.Show("There are no bluetooth radios found on this device.");
+                Close();
+                return;
+            }
+
+            if (BluetoothRadio.PrimaryRadio.Mode == RadioMode.PowerOff)
+            {
+                MessageBox.Show("Bluetooth radio is powered off");
+                Close();
+                return;
+            }
+
             if (BluetoothAddress != null)
             {
                 // BT Exists. Load it
@@ -60,7 +76,7 @@ namespace LibreHardwareMonitor.UI
                 valueDeviceName.Text = deviceInfo?.DeviceName;
                 valueRssi.Text = deviceInfo?.Rssi.ToString();
                 checkBoxAuthenticated.Checked = deviceInfo?.Authenticated == true;
-                checkBoxConnected.Checked = client?.Connected == true;
+                checkBoxConnected.Checked = client?.IsConnected() == true;
                 textBoxInfo.Text = JsonConvert.SerializeObject(deviceInfo, Formatting.Indented);
             }));
         }

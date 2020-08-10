@@ -6,16 +6,22 @@ import os
 from flask import Flask, make_response
 app = Flask(__name__)
 payload = ""
+isClientConnected = False
 
 @app.route('/metrics')
 def metrics():
     global payload
-    response = make_response(payload, 200)
+    if isClientConnected == False:
+        response = make_response("Client not connected", 404)
+    else:
+        response = make_response(payload, 200)
+        
     response.mimetype = "text/plain"
     return response
  
 def rfcommServer(): 
     global payload
+    global isClientConnected
     
     print("Turning on BT scan..")
     os.system('hciconfig hci0 piscan')
@@ -26,20 +32,30 @@ def rfcommServer():
     port = server_sock.getsockname()[1]
     uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
 
-    bluetooth.advertise_service(server_sock, "SampleServer", service_id=uuid,
+    bluetooth.advertise_service(server_sock, "OpenHWMReceiver", service_id=uuid,
                                 service_classes=[uuid, bluetooth.SERIAL_PORT_CLASS],
                                 profiles=[bluetooth.SERIAL_PORT_PROFILE]
                                 )
 
     while True:
+        waitingForConnection = True
         print("Waiting for connection on RFCOMM channel", port)
-        try:
-            client_sock, client_info = server_sock.accept()
-        except:
-            pass
-            
+        
+        while waitingForConnection:
+            try:
+                client_sock, client_info = server_sock.accept()
+            except:
+                pass
+                
+            try:
+                client_sock.getpeername()
+                waitingForConnection = False
+            except:
+                pass    
+                
         print("Accepted connection from", client_info)
         currentData = ""
+        isClientConnected = True
         
         try:
             while True:
@@ -63,12 +79,14 @@ def rfcommServer():
 
         print("Disconnected.")
         client_sock.close()
-        server_sock.close()
+        
+        isClientConnected = False
 
 threading.Thread(target=rfcommServer).start()
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0')    
 
+server_sock.close()
 print("All done.")
 

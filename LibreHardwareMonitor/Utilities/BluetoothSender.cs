@@ -37,7 +37,12 @@ namespace LibreHardwareMonitor.Utilities
             _computer = computer;
             _computer.HardwareAdded += HardwareAdded;
             _computer.HardwareRemoved += HardwareRemoved;
-            Client = new BluetoothClient();
+
+            if (BluetoothRadio.PrimaryRadio != null && BluetoothRadio.PrimaryRadio.Mode != RadioMode.PowerOff)
+            {
+                Client = new BluetoothClient();
+            }
+
             RefreshSensors();
             var registry = Metrics.DefaultRegistry;
         }

@@ -30,7 +30,6 @@
         {
             this.selectBluetoothDeviceDialog = new InTheHand.Windows.Forms.SelectBluetoothDeviceDialog();
             this.buttonSelectBtDevice = new System.Windows.Forms.Button();
-            this.bluetoothComponent1 = new InTheHand.Net.Bluetooth.BluetoothComponent();
             this.checkBoxConnected = new System.Windows.Forms.CheckBox();
             this.checkBoxAuthenticated = new System.Windows.Forms.CheckBox();
             this.labelDeviceName = new System.Windows.Forms.Label();
@@ -191,7 +190,6 @@
 
         private InTheHand.Windows.Forms.SelectBluetoothDeviceDialog selectBluetoothDeviceDialog;
         private System.Windows.Forms.Button buttonSelectBtDevice;
-        private InTheHand.Net.Bluetooth.BluetoothComponent bluetoothComponent1;
         private System.Windows.Forms.CheckBox checkBoxConnected;
         private System.Windows.Forms.CheckBox checkBoxAuthenticated;
         private System.Windows.Forms.Label labelDeviceName;
