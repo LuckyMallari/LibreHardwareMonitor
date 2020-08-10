@@ -10,7 +10,7 @@
     <RuntimeIdentifiers>win</RuntimeIdentifiers>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>LibreHardwareMonitor</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RootNamespace>LibreHardwareMonitor</RootNamespace>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -98,11 +98,17 @@
     <Reference Include="OxyPlot.WindowsForms, Version=1.0.0.0, Culture=neutral, PublicKeyToken=245eacd6b5d2d338, processorArchitecture=MSIL">
       <HintPath>..\packages\OxyPlot.WindowsForms.1.0.0\lib\net45\OxyPlot.WindowsForms.dll</HintPath>
     </Reference>
+    <Reference Include="Prometheus.NetStandard, Version=3.0.0.0, Culture=neutral, PublicKeyToken=a243e9817ba9d559, processorArchitecture=MSIL">
+      <HintPath>..\packages\prometheus-net.3.6.0\lib\net461\Prometheus.NetStandard.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -111,6 +117,7 @@
     <Compile Include="..\LibreHardwareMonitorLib\Properties\AssemblyVersion.cs">
       <Link>Properties\AssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="PrometheusCollection.cs" />
     <Compile Include="UI\AuthForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -159,6 +166,7 @@
     <Compile Include="UI\UpdateVisitor.cs" />
     <Compile Include="UI\UserOption.cs" />
     <Compile Include="UI\UserRadioGroup.cs" />
+    <Compile Include="Utilities\BluetoothClientExtension.cs" />
     <Compile Include="Utilities\BluetoothSender.cs" />
     <Compile Include="Utilities\HttpServer.cs" />
     <Compile Include="Utilities\Logger.cs" />
@@ -181,6 +189,8 @@
     <Compile Include="UI\SensorNode.cs" />
     <Compile Include="Utilities\EmbeddedResources.cs" />
     <Compile Include="Utilities\IconFactory.cs" />
+    <Compile Include="Utilities\Prometheus\PrometheusValue.cs" />
+    <Compile Include="Utilities\SocketExtension.cs" />
     <Compile Include="WMI\Hardware.cs" />
     <Compile Include="WMI\IWmiObject.cs" />
     <Compile Include="WMI\Sensor.cs" />
@@ -217,6 +227,7 @@
     <EmbeddedResource Include="Resources\nic.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Resources\app.manifest">
       <SubType>Designer</SubType>

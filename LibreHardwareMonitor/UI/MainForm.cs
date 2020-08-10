@@ -17,7 +17,7 @@ using Aga.Controls.Tree.NodeControls;
 using LibreHardwareMonitor.Hardware;
 using LibreHardwareMonitor.Utilities;
 using LibreHardwareMonitor.Wmi;
-
+using Microsoft.Win32;
 
 namespace LibreHardwareMonitor.UI
 {
@@ -49,6 +49,7 @@ namespace LibreHardwareMonitor.UI
         private readonly UserOption _readFanControllersSensors;
         private readonly UserOption _readHddSensors;
         private readonly UserOption _readNicSensors;
+        private readonly UserOption _btSenderShutdownEnabled;
 
         private readonly UserOption _showGadget;
         private UserRadioGroup _plotLocation;
@@ -149,6 +150,8 @@ namespace LibreHardwareMonitor.UI
             _logger = new Logger(_computer);
             _bluetoothSender = new BluetoothSender(_computer);
 
+            SystemEvents.SessionEnding += _bluetoothSender.SystemEvents_SessionEnding;
+
             _plotColorPalette = new Color[13];
             _plotColorPalette[0] = Color.Blue;
             _plotColorPalette[1] = Color.OrangeRed;
@@ -169,6 +172,13 @@ namespace LibreHardwareMonitor.UI
             _computer.Open();
 
             timer.Enabled = true;
+
+            _btSenderShutdownEnabled = new UserOption("btSenderShutdownEnabled", false, btSenderShutdownEnabled, _settings);
+            _btSenderShutdownEnabled.Changed += delegate
+            {
+                _bluetoothSender.IsProcessShutdown = _btSenderShutdownEnabled.Value;
+                btSenderShutdownEnabled.Text = _bluetoothSender.IsProcessShutdown ? "Enabled" : "Disabled";
+            };
 
             UserOption showHiddenSensors = new UserOption("hiddenMenuItem", false, hiddenMenuItem, _settings);
             showHiddenSensors.Changed += delegate
@@ -396,6 +406,7 @@ namespace LibreHardwareMonitor.UI
 
             Microsoft.Win32.SystemEvents.PowerModeChanged += PowerModeChanged;
         }
+
 
         private void PowerModeChanged(object sender, Microsoft.Win32.PowerModeChangedEventArgs eventArgs)
         {
@@ -1098,6 +1109,9 @@ namespace LibreHardwareMonitor.UI
             SaveConfiguration();
         }
 
-
+        private void menuItemSendShutdown_Click(object sender, EventArgs e)
+        {
+            _bluetoothSender?.sendShutdown();
+        }
     }
 }

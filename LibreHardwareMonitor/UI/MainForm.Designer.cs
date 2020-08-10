@@ -118,6 +118,12 @@ namespace LibreHardwareMonitor.UI
             this.runWebServerMenuItem = new System.Windows.Forms.MenuItem();
             this.serverPortMenuItem = new System.Windows.Forms.MenuItem();
             this.authWebServerMenuItem = new System.Windows.Forms.MenuItem();
+            this.menuItem4 = new System.Windows.Forms.MenuItem();
+            this.menuItemBtRun = new System.Windows.Forms.MenuItem();
+            this.menuItemBtConfig = new System.Windows.Forms.MenuItem();
+            this.menuItem7 = new System.Windows.Forms.MenuItem();
+            this.btSenderShutdownEnabled = new System.Windows.Forms.MenuItem();
+            this.menuItemSendShutdown = new System.Windows.Forms.MenuItem();
             this.helpMenuItem = new System.Windows.Forms.MenuItem();
             this.aboutMenuItem = new System.Windows.Forms.MenuItem();
             this.treeContextMenu = new System.Windows.Forms.ContextMenu();
@@ -125,9 +131,6 @@ namespace LibreHardwareMonitor.UI
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new LibreHardwareMonitor.UI.SplitContainerAdv();
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-            this.menuItem4 = new System.Windows.Forms.MenuItem();
-            this.menuItemBtRun = new System.Windows.Forms.MenuItem();
-            this.menuItemBtConfig = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.SuspendLayout();
@@ -691,6 +694,45 @@ namespace LibreHardwareMonitor.UI
             this.authWebServerMenuItem.Text = "Authentication";
             this.authWebServerMenuItem.Click += new System.EventHandler(this.AuthWebServerMenuItem_Click);
             // 
+            // menuItem4
+            // 
+            this.menuItem4.Index = 13;
+            this.menuItem4.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItemBtRun,
+            this.menuItemBtConfig,
+            this.menuItem7});
+            this.menuItem4.Text = "Remote Bluetooth Server";
+            // 
+            // menuItemBtRun
+            // 
+            this.menuItemBtRun.Index = 0;
+            this.menuItemBtRun.Text = "Run";
+            // 
+            // menuItemBtConfig
+            // 
+            this.menuItemBtConfig.Index = 1;
+            this.menuItemBtConfig.Text = "Configure";
+            this.menuItemBtConfig.Click += new System.EventHandler(this.menuItemBtConfig_Click);
+            // 
+            // menuItem7
+            // 
+            this.menuItem7.Index = 2;
+            this.menuItem7.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.btSenderShutdownEnabled,
+            this.menuItemSendShutdown});
+            this.menuItem7.Text = "Shutdown";
+            // 
+            // btSenderShutdownEnabled
+            // 
+            this.btSenderShutdownEnabled.Index = 0;
+            this.btSenderShutdownEnabled.Text = "Enable";
+            // 
+            // menuItemSendShutdown
+            // 
+            this.menuItemSendShutdown.Index = 1;
+            this.menuItemSendShutdown.Text = "Shutdown Now";
+            this.menuItemSendShutdown.Click += new System.EventHandler(this.menuItemSendShutdown_Click);
+            // 
             // helpMenuItem
             // 
             this.helpMenuItem.Index = 3;
@@ -771,25 +813,6 @@ namespace LibreHardwareMonitor.UI
             this.treeView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseDown);
             this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseMove);
             this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseUp);
-            // 
-            // menuItem4
-            // 
-            this.menuItem4.Index = 13;
-            this.menuItem4.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItemBtRun,
-            this.menuItemBtConfig});
-            this.menuItem4.Text = "Remote Bluetooth Server";
-            // 
-            // menuItem7
-            // 
-            this.menuItemBtRun.Index = 0;
-            this.menuItemBtRun.Text = "Run";
-            // 
-            // menuItemBtConfig
-            // 
-            this.menuItemBtConfig.Index = 1;
-            this.menuItemBtConfig.Text = "Configure";
-            this.menuItemBtConfig.Click += new System.EventHandler(this.menuItemBtConfig_Click);
             // 
             // MainForm
             // 
@@ -906,6 +929,9 @@ namespace LibreHardwareMonitor.UI
         private System.Windows.Forms.MenuItem menuItem4;
         private System.Windows.Forms.MenuItem menuItemBtRun;
         private System.Windows.Forms.MenuItem menuItemBtConfig;
+        private System.Windows.Forms.MenuItem menuItemSendShutdown;
+        private System.Windows.Forms.MenuItem menuItem7;
+        private System.Windows.Forms.MenuItem btSenderShutdownEnabled;
     }
 }
 

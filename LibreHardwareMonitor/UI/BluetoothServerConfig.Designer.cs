@@ -150,8 +150,16 @@
             this.textBoxInfo.Location = new System.Drawing.Point(5, 103);
             this.textBoxInfo.Multiline = true;
             this.textBoxInfo.Name = "textBoxInfo";
+            this.textBoxInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBoxInfo.Size = new System.Drawing.Size(176, 182);
             this.textBoxInfo.TabIndex = 9;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(0, 0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 0;
             // 
             // BluetoothServerConfig
             // 

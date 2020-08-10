@@ -2,12 +2,16 @@
 using InTheHand.Net.Bluetooth;
 using InTheHand.Net.Sockets;
 using LibreHardwareMonitor.Hardware;
+using LibreHardwareMonitor.Utilities.Prometheus;
+using Microsoft.Win32;
+using Prometheus;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace LibreHardwareMonitor.Utilities
 {
@@ -17,6 +21,14 @@ namespace LibreHardwareMonitor.Utilities
         private string[] _identifiers;
         private ISensor[] _sensors;
         private DateTime _lastLoggedTime = DateTime.MinValue;
+        private static readonly Regex Rx = new Regex("[^a-zA-Z0-9_:]", RegexOptions.Compiled);
+        private bool isConnecting;
+        private DateTime lastConnect = DateTime.Now;
+        public BluetoothAddress cachedBtAddress { get; private set; }
+        public bool IsProcessShutdown { get; set; }
+
+        static CollectorRegistry registry = Metrics.DefaultRegistry;
+        MetricFactory metricFactory = Metrics.WithCustomRegistry(registry);
 
         public BluetoothClient Client { get; private set; }
 
@@ -27,6 +39,7 @@ namespace LibreHardwareMonitor.Utilities
             _computer.HardwareRemoved += HardwareRemoved;
             Client = new BluetoothClient();
             RefreshSensors();
+            var registry = Metrics.DefaultRegistry;
         }
 
         private void HardwareRemoved(IHardware hardware)
@@ -96,50 +109,70 @@ namespace LibreHardwareMonitor.Utilities
             if (_sensors == null || _sensors.Length == 0)
                 RefreshSensors();
 
-
             DateTime now = DateTime.Now;
-
             if (_lastLoggedTime + LoggingInterval - new TimeSpan(5000000) > now)
                 return;
+
             try
             {
-                StringBuilder sb = new StringBuilder();
-
-                sb.Append(now.ToString("G"));
-                sb.Append(",");
                 for (int i = 0; i < _sensors.Length; i++)
                 {
-                    if (_sensors[i] != null)
-                    {
-                        float? value = _sensors[i].Value;
-                        if (value.HasValue)
-                            sb.Append(value.Value.ToString("R"));
-                    }
-                    if (i < _sensors.Length - 1)
-                        sb.Append(",");
-                    else
-                        sb.AppendLine();
+                    if (_sensors == null)
+                        return;
+
+                    var sensor = _sensors[i];
+                    var hwInstance = _sensors[i].Hardware.Identifier.ToString();
+                    var ind = hwInstance.LastIndexOf('/');
+                    hwInstance = hwInstance.Substring(ind + 1);
+                    var reportedValue = new PrometheusValue(sensor.Identifier.ToString(),
+                                        sensor.Name,
+                                        sensor.Value.Value,
+                                        sensor.SensorType,
+                                        sensor.Hardware.Name,
+                                        sensor.Hardware.HardwareType,
+                                        hwInstance,
+                                        sensor.Index);
+
+                    var (unit, val) = PrometheusValue.Convert(reportedValue);
+                    var hw = Enum.GetName(typeof(HardwareType), sensor.Hardware.HardwareType)?.ToLowerInvariant();
+                    var name = Rx.Replace($"ohm_{hw}_{unit}", "_");
+                    metricFactory
+                        .CreateGauge(name, "Metric reported by open hardware sensor", "hardware", "sensor", "hw_instance")
+                        .WithLabels(reportedValue.Hardware, reportedValue.Sensor, reportedValue.HardwareInstance)
+                        .Set(val);
                 }
-                sendText(sb.ToString());
+
+                if (Client?.Connected == true)
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        registry.CollectAndExportAsTextAsync(stream);
+                        string text = Encoding.UTF8.GetString(stream.ToArray());
+                        sendText($"###<BEGIN>\r\n{text}###<END>");
+                    }
+                }
             }
             catch (IOException) { }
 
             _lastLoggedTime = now;
         }
 
+
         public void sendText(string s)
         {
-            if (Client?.Connected != true)
+            if (Client?.IsConnected() != true)
             {
+                Connect(cachedBtAddress);
                 return;
             }
 
+            WriteToStream(Client?.GetStream(), s);
+        }
+
+        private void WriteToStream(Stream stream, string s)
+        {
             byte[] bytes = Encoding.ASCII.GetBytes(s);
-            var bluetoothStream = Client?.GetStream();
-            if (bluetoothStream != null)
-            {
-                bluetoothStream.Write(bytes, 0, bytes.Length);
-            }
+            stream?.Write(bytes, 0, bytes.Length);
         }
 
         public void Connect(string btAddressString)
@@ -151,19 +184,62 @@ namespace LibreHardwareMonitor.Utilities
 
         public void Connect(BluetoothAddress btAddress)
         {
-            if (btAddress == null)
+            cachedBtAddress = btAddress;
+
+            var lastConnectDuration = DateTime.Now - lastConnect;
+            
+            if (cachedBtAddress == null || lastConnectDuration.TotalSeconds < 5 ||  isConnecting)
                 return;
 
-            BluetoothSecurity.PairRequest(btAddress, "123456");
-            Client.BeginConnect(btAddress, BluetoothService.SerialPort, new AsyncCallback(OnConnectCallback), Client);
+            BluetoothSecurity.PairRequest(cachedBtAddress, "123456");
+
+            try
+            {
+                Client.BeginConnect(cachedBtAddress, BluetoothService.SerialPort, new AsyncCallback(OnConnectCallback), null);
+            }
+            catch {
+                CleanupBt();
+            }
+
+            lastConnect = DateTime.Now;
+
         }
 
         private void OnConnectCallback(IAsyncResult ar)
         {
             if (ar.IsCompleted)
             {
-                Client.EndConnect(ar);
+                if (Client?.Connected == true)
+                {
+                    Client.EndConnect(ar);
+                }
+                else
+                {
+                    CleanupBt();
+                }
             }
+        }
+
+        private void CleanupBt()
+        {
+            Client?.Close();
+            Client?.Dispose();
+            Client = null;
+            Client = new BluetoothClient();
+        }
+
+        public void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
+        {
+            if (!IsProcessShutdown)
+                return;
+
+            sendShutdown();
+        }
+
+        public void sendShutdown()
+        {
+            sendText("###<SHUTDOWN>");
+            CleanupBt();
         }
     }
 }

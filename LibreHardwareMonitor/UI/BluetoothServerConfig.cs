@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using LibreHardwareMonitor.Utilities;
 using InTheHand.Net;
+using System.Linq;
 
 namespace LibreHardwareMonitor.UI
 {
@@ -20,8 +21,22 @@ namespace LibreHardwareMonitor.UI
             InitializeComponent();
             this.bluetoothSender = bluetoothSender;
             client = bluetoothSender.Client;
+
+            BluetoothAddress = bluetoothSender.cachedBtAddress;
+            this.Load += BluetoothServerConfig_Load;
         }
-        
+
+        private void BluetoothServerConfig_Load(object sender, EventArgs e)
+        {
+            if (BluetoothAddress != null)
+            {
+                // BT Exists. Load it
+                var deviceInfo = client.DiscoverDevices(10, true, true, false)
+                    .FirstOrDefault(d => d.DeviceAddress == BluetoothAddress);
+                getInfo(deviceInfo);
+            }
+        }
+
         private void buttonSelectBtDevice_Click(object sender, EventArgs e)
         {
             selectBluetoothDeviceDialog.ShowDialog();
@@ -36,16 +51,17 @@ namespace LibreHardwareMonitor.UI
             }
         }
 
-        private void getInfo()
+        private void getInfo(BluetoothDeviceInfo bluetoothDeviceInfo = null)
         {
+            BluetoothDeviceInfo deviceInfo = bluetoothDeviceInfo ?? selectBluetoothDeviceDialog.SelectedDevice;
             BeginInvoke((Action)(() =>
             {
-                valueDeviceAddress.Text = selectBluetoothDeviceDialog.SelectedDevice?.DeviceAddress.ToString();
-                valueDeviceName.Text = selectBluetoothDeviceDialog.SelectedDevice?.DeviceName;
-                valueRssi.Text = selectBluetoothDeviceDialog.SelectedDevice?.Rssi.ToString();
-                checkBoxAuthenticated.Checked = selectBluetoothDeviceDialog.SelectedDevice?.Authenticated == true;
+                valueDeviceAddress.Text = deviceInfo?.DeviceAddress.ToString();
+                valueDeviceName.Text = deviceInfo?.DeviceName;
+                valueRssi.Text = deviceInfo?.Rssi.ToString();
+                checkBoxAuthenticated.Checked = deviceInfo?.Authenticated == true;
                 checkBoxConnected.Checked = client?.Connected == true;
-                textBoxInfo.Text = JsonConvert.SerializeObject(selectBluetoothDeviceDialog.SelectedDevice, Formatting.Indented);
+                textBoxInfo.Text = JsonConvert.SerializeObject(deviceInfo, Formatting.Indented);
             }));
         }
     }
